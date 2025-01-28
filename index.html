@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine?</title>
+    <style>
+        body {
+            background-color: #ffccd5;
+            font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            font-weight: 400;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        h1 {
+            color: #ff0054;
+            margin-top: 20px;
+            font-size: 3em;
+            transition: color 0.3s ease;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 1.5em;
+            margin: 0 20px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        .yes {
+            background-color: #28a745; /* Green */
+            color: white;
+        }
+        .yes:hover {
+            background-color: #218838;
+            transform: scale(1.1);
+        }
+        .no {
+            background-color: #dc3545; /* Red */
+            color: white;
+        }
+        .no:hover {
+            background-color: #c82333;
+            transform: scale(1.1);
+        }
+        #image-container {
+            margin-bottom: 20px;
+        }
+        #perks-box {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 0.9em;
+            max-width: 200px;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+        #perks-box h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+            color: #ff0054;
+        }
+        #perks-box ul {
+            margin: 0;
+            padding: 0;
+            list-style-type: none;
+        }
+        #perks-box li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="question">Will you be my Valentine?</h1>
+    <div id="image-container"></div>
+    <div class="button-container">
+        <button class="yes" id="yesButton" onclick="sayYes()">Yes</button>
+        <button class="no" id="noButton" onclick="sayNo()">No</button>
+    </div>
+    <div id="perks-box">
+        <h3>Perks</h3>
+        <ul id="perks-list"></ul>
+    </div>
+
+    <script>
+        let noClickCount = 0;
+        const phrases = [
+            "Come on, MIRII, don’t make me beg – just say yes!",
+            "You clicked NO, but let’s fix that mistake – hit YES this time!",
+            "Say yes, or I’ll have to send a dramatic text about how upset I am!",
+            "We’d be the perfect Mora-chan together – ready to be my Valentine?",
+            "Don’t say no, it’s Valentine’s Day – we’re meant to be!",
+            "Are you really going to break your pookie’s heart?",
+            "Alright, MIRII, now you’ve got no choice – my heart is on the line!"
+        ];
+        const perks = [
+            "I’ll treat you to kunafa or vada pav every weekend once we’re finally together!",
+            "We’ll binge K-pop together on feb 1st week!",
+            "We’ll have a K-drama marathon in the first week of February!",
+            "A cute plushie just for you when we meet – can’t wait to see your smile!",
+            "A beautiful jhumka for you when we’re finally together!",
+            "I’ll answer two of your toughest questions truthfully, no matter what!",
+            "Available for you 24/7 in February first week!",
+            "Something sweet and special will be on its way to you this Valentine’s Day!"
+        ];
+        const gifUrls = [
+            "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExcHFhaG84M2N1cTNveWpoaWZwNzJrNWx3cnZwaTR6enpvNHR2NWVlZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/VzqX9U4bena8w/giphy.gif",
+            "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExYno3bDh4cTlsNHcwc2trN2ZtaW1ibTdsa25oZXhoemF3MWEydDd1dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/y0t7g4izntCyV8Lcfz/giphy.gif",
+            "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExa2E4azhmOG1kOXR3dmZuN3RramY3NmV0ODNwOXUzdXl6MDlmcTZtNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oEjHGPDuSUFw0tkCA/giphy.gif",
+            "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExcWVzNDlwMWxmajd1aGdlcHhja2tyaW5kd282c3Y5eXg3dHVtZTB5biZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/XmapUaBUoLt8iVEnaP/giphy.gif",
+            "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExMDFnMmd1Z25uN2dleW9lMGQwODk5MDZveWNzNzF6d290ejM5MXJ5NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/JVGF9aHMcUINjw7oTg/giphy.gif",
+            "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExaHphc2htOGkwcWFtd3N2ZnZmdnVqaGxlZzF1bHY1M3R0MHdoamZyZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/qZFm8unuAyiQkHgYFj/giphy.gif",
+            "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbDRmZ2JlM3VjbmZxdHJpamJwdjN3NHY1ZDUwZWtrdTh5d2xhbHduaCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/0OgdJVNjbcIifqSb7U/giphy.gif"
+        ];
+
+        function updatePerksBox() {
+            const perksList = document.getElementById('perks-list');
+            perksList.innerHTML = perks.slice(0, noClickCount + 1).map(perk => `<li>${perk}</li>`).join('');
+        }
+
+        function sayYes() {
+            const collectedPerks = perks.slice(0, noClickCount + 1).map((perk, index) => `<li>${index + 1}. ${perk}</li>`).join('');
+            document.body.innerHTML = `
+                <h1 style="color: #ff0054;">Yay! You said yes! 💖</h1>
+                <p>Here are the perks you get:</p>
+                <ul style="text-align: left; margin: 0 auto; display: inline-block;">${collectedPerks}</ul>
+            `;
+        }
+
+        function sayNo() {
+            noClickCount++;
+            const yesButton = document.getElementById('yesButton');
+            const questionElement = document.getElementById('question');
+            const noButton = document.getElementById('noButton');
+            const imageContainer = document.getElementById('image-container');
+
+            // Increase the "Yes" button size by 10% each time "No" is clicked
+            let scale = 1 + (noClickCount * 0.13); // Increase size by 10% each time
+            yesButton.style.transform = `scale(${scale})`;
+
+            if (noClickCount < phrases.length) {
+                questionElement.innerText = `${phrases[noClickCount - 1]} `;
+                if (gifUrls[noClickCount - 1]) {
+                    imageContainer.innerHTML = `<img src="${gifUrls[noClickCount - 1]}" alt="Fun Gif" style="max-width: 300px; border-radius: 15px;" />`;
+                } else {
+                    imageContainer.innerHTML = "";
+                }
+            } else {
+                const maxX = 400;
+                const maxY = 200;
+                const randomX = (Math.random() * 2 - 1) * maxX;
+                const randomY = (Math.random() * 2 - 1) * maxY;
+                noButton.style.transform = `translate(${randomX}px, ${randomY}px)`;
+            }
+
+            updatePerksBox();
+        }
+
+        updatePerksBox();
+    </script>
+</body>
+</html>
+
